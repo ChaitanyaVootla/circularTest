@@ -1,0 +1,88 @@
+pipelines:
+  - name: artifactory_monorepo_prerelease
+    configuration:
+      environmentVariables:
+        readOnly:
+          NEW_MAJOR: "false"
+          SUGGESTED_MINOR: ""
+    steps:
+      - name: create_prerelease_branch
+        type: Bash
+        configuration:
+          priority: 1
+          inputResources:
+            - name: artifactory_monorepo_bitbucket
+              trigger: false
+        execution:
+          onExecute:
+            - echo "done"
+
+      - name: modify_prerelease_versions
+        type: Bash
+        configuration:
+          priority: 1
+          inputResources:
+            - name: artifactory_monorepo_bitbucket
+              trigger: false
+          inputSteps:
+            - name: create_prerelease_branch
+        execution:
+          onExecute:
+            - echo "done"
+
+      - name: check_repositories_exist
+        type: Bash
+        configuration:
+          timeoutSeconds: 300
+          priority: 1
+          inputResources:
+            - name: artifactory_monorepo_bitbucket
+              trigger: false
+          inputSteps:
+            - name: modify_prerelease_versions
+        execution:
+          onExecute:
+            - echo "done"
+      - name: wait_for_branch_sync
+        type: Bash
+        configuration:
+          timeoutSeconds: 300
+          priority: 1
+          inputResources:
+            - name: artifactory_monorepo_bitbucket
+              trigger: false
+          inputSteps:
+            - name: modify_prerelease_versions
+        execution:
+          onExecute:
+            - echo "done"
+
+      - name: trigger_master_next_version_milestone
+        type: Bash
+        configuration:
+          priority: 1
+          inputResources:
+            - name: artifactory_monorepo_bitbucket
+              trigger: false
+          inputSteps:
+            - name: modify_prerelease_versions
+          outputResources:
+            - name: artifactory_monorepo_release_config_properties
+        execution:
+          onExecute:
+            - echo "done"
+      - name: trigger_all_prerelease_branch_build
+        type: Bash
+        configuration:
+          priority: 1
+          inputResources:
+            - name: artifactory_monorepo_bitbucket
+              trigger: false
+          inputSteps:
+            - name: check_repositories_exist
+            - name: wait_for_branch_sync
+          outputResources:
+            - name: artifactory_monorepo_build_trigger_all_property_bag
+        execution:
+          onStart:
+            - echo "done"
