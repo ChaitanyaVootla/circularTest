@@ -1,3 +1,19 @@
+resources:
+  - name: artifactory_monorepo_bitbucket
+    type: GitRepo
+    configuration:
+      gitProvider: gitResource
+      path: ChaitanyaVootla/ymlTest
+  - name: artifactory_monorepo_build_trigger_all_property_bag
+    type: GitRepo
+    configuration:
+      gitProvider: gitResource
+      path: ChaitanyaVootla/ymlTest
+  - name: artifactory_monorepo_release_config_properties
+    type: GitRepo
+    configuration:
+      gitProvider: gitResource
+      path: ChaitanyaVootla/ymlTest
 pipelines:
   - name: artifactory_monorepo_prerelease
     configuration:
